@@ -1,12 +1,20 @@
 [gd_scene load_steps=3 format=3 uid="uid://s8hyjvka1s0q"]
 
 [ext_resource type="PackedScene" uid="uid://dcydo58fpfn4j" path="res://scenes/player.tscn" id="1_2gnwj"]
-[ext_resource type="Texture2D" uid="uid://cigadwkkidoa5" path="res://graphix/sprites/sand.png" id="2_d7xj7"]
+
+[sub_resource type="TileSet" id="TileSet_dtffw"]
+tile_size = Vector2i(32, 32)
+physics_layer_0/collision_layer = 1
+terrain_set_0/mode = 0
+terrain_set_0/terrain_0/name = "Terrain 0"
+terrain_set_0/terrain_0/color = Color(0.5, 0.34375, 0.25, 1)
+terrain_set_0/terrain_1/name = "Terrain 1"
+terrain_set_0/terrain_1/color = Color(0.5, 0.4375, 0.25, 1)
 
 [node name="World" type="Node2D"]
 
 [node name="Player" parent="." instance=ExtResource("1_2gnwj")]
 
-[node name="Sand" type="Sprite2D" parent="."]
-position = Vector2(85, 170)
-texture = ExtResource("2_d7xj7")
+[node name="TileMap" type="TileMap" parent="."]
+tile_set = SubResource("TileSet_dtffw")
+format = 2
