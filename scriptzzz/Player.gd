@@ -3,7 +3,7 @@ extends CharacterBody2D
 
 var SPEED = 800
 
-
+#test
 func _physics_process(delta):
 
 	# Get the input direction and handle the movement/deceleration.
