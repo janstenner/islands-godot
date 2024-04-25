@@ -3,8 +3,8 @@ extends Node2D
 @export var noise_height_texture : NoiseTexture2D
 var noise : Noise
 
-var width : int = 32
-var height : int = 32
+var width : int = 128
+var height : int = 128
 
 @onready var tile_map = $TileMap
 @onready var player = $Player
