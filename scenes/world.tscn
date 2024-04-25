@@ -1,8 +1,10 @@
-[gd_scene load_steps=7 format=3 uid="uid://s8hyjvka1s0q"]
+[gd_scene load_steps=12 format=3 uid="uid://s8hyjvka1s0q"]
 
 [ext_resource type="PackedScene" uid="uid://dcydo58fpfn4j" path="res://scenes/player.tscn" id="1_2gnwj"]
 [ext_resource type="Script" path="res://scriptzzz/world.gd" id="1_7tpkv"]
 [ext_resource type="TileSet" uid="uid://chwvfwqmtc0l4" path="res://sonstiges/tileset.tres" id="2_fh1fw"]
+[ext_resource type="Shader" path="res://scriptzzz/shader.gdshader" id="2_pb36s"]
+[ext_resource type="Texture2D" uid="uid://camugdxa0royv" path="res://icon.svg" id="3_6cjew"]
 
 [sub_resource type="Gradient" id="Gradient_lrmp4"]
 interpolation_mode = 1
@@ -17,6 +19,19 @@ frequency = 0.0546
 color_ramp = SubResource("Gradient_lrmp4")
 noise = SubResource("FastNoiseLite_va16x")
 
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_xwl1p"]
+noise_type = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_sdjbo"]
+seamless = true
+noise = SubResource("FastNoiseLite_xwl1p")
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2xuvn"]
+shader = ExtResource("2_pb36s")
+shader_parameter/scroll = Vector2(0.05, 0.05)
+shader_parameter/distortion_strength = 0.2
+shader_parameter/noise = SubResource("NoiseTexture2D_sdjbo")
+
 [node name="World" type="Node2D"]
 script = ExtResource("1_7tpkv")
 noise_height_texture = SubResource("NoiseTexture2D_dq2yx")
@@ -24,5 +39,12 @@ noise_height_texture = SubResource("NoiseTexture2D_dq2yx")
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource("2_fh1fw")
 format = 2
+
+[node name="WaterShaderLayer" type="Sprite2D" parent="."]
+visible = false
+material = SubResource("ShaderMaterial_2xuvn")
+position = Vector2(-7.00002, 0.499996)
+scale = Vector2(4.32813, 2.46094)
+texture = ExtResource("3_6cjew")
 
 [node name="Player" parent="." instance=ExtResource("1_2gnwj")]
