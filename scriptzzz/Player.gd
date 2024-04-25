@@ -11,7 +11,7 @@ func _physics_process(delta):
 	var directionx = Input.get_axis("ui_left", "ui_right")
 	var directiony = Input.get_axis("ui_up", "ui_down")
 	
-	#print(directionx)
+	#print(position.x, position.y)
 	
 	if directionx:
 		velocity.x = directionx * SPEED
