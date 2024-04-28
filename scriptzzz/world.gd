@@ -15,6 +15,7 @@ var land_atlas = Vector2i(0,0)
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	noise_height_texture.noise.set_seed(randi_range(0, 100000))
 	noise = noise_height_texture.noise
 	generateWorld(0,0)
 	pass 

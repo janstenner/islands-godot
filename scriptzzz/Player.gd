@@ -1,7 +1,7 @@
-extends CharacterBody2D
+extends RigidBody2D
 
 
-var SPEED = 800
+var SPEED = 40
 
 #test
 func _physics_process(delta):
@@ -11,15 +11,14 @@ func _physics_process(delta):
 	var directionx = Input.get_axis("ui_left", "ui_right")
 	var directiony = Input.get_axis("ui_up", "ui_down")
 	
+	var xy : Vector2 = Vector2(0, 0)
+	
 	#print(position.x, position.y)
 	
 	if directionx:
-		velocity.x = directionx * SPEED
-	else:
-		velocity.x = move_toward(velocity.x, 0, SPEED)
+		xy.x = directionx * SPEED
+		
 	if directiony:
-		velocity.y = directiony * SPEED
-	else:
-		velocity.y = move_toward(velocity.y, 0, SPEED)
+		xy.y = directiony * SPEED
 
-	move_and_slide()
+	apply_central_impulse(xy)
