@@ -40,6 +40,13 @@ noise_height_texture = SubResource("NoiseTexture2D_dq2yx")
 [node name="TileMap" type="TileMap" parent="."]
 tile_set = ExtResource("2_fh1fw")
 format = 2
+layer_0/name = "Water"
+layer_1/name = "Land"
+layer_1/z_index = 1
+layer_1/tile_data = PackedInt32Array()
+layer_2/name = "Outer"
+layer_2/z_index = 2
+layer_2/tile_data = PackedInt32Array()
 
 [node name="WaterShaderLayer" type="Sprite2D" parent="."]
 visible = false
