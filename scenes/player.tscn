@@ -1,15 +1,18 @@
-[gd_scene load_steps=7 format=3 uid="uid://dcydo58fpfn4j"]
+[gd_scene load_steps=10 format=3 uid="uid://dcydo58fpfn4j"]
 
 [ext_resource type="Script" path="res://scriptzzz/Player.gd" id="1_mbmkg"]
 [ext_resource type="Texture2D" uid="uid://bdw70eofhe6b" path="res://graphix/sprites/player.png" id="2_df5oy"]
 [ext_resource type="Texture2D" uid="uid://daiqvnptcxx44" path="res://graphix/sprites/hammer.png" id="3_re23o"]
+[ext_resource type="Script" path="res://scriptzzz/FiniteStateMachine.gd" id="4_ikce3"]
+[ext_resource type="Script" path="res://scriptzzz/states/player/PlayerIdle.gd" id="5_53ryq"]
+[ext_resource type="Script" path="res://scriptzzz/states/player/PlayerHammering.gd" id="6_udb4h"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wkvrw"]
 radius = 14.1421
 
 [sub_resource type="Animation" id="Animation_g6163"]
 resource_name = "hammer_animation"
-length = 0.1175
+length = 0.1
 tracks/0/type = "value"
 tracks/0/imported = false
 tracks/0/enabled = true
@@ -33,6 +36,18 @@ tracks/1/keys = {
 "transitions": PackedFloat32Array(1, 1),
 "update": 0,
 "values": [0.0, -1.57079]
+}
+tracks/2/type = "value"
+tracks/2/imported = false
+tracks/2/enabled = true
+tracks/2/path = NodePath("Hammer:visible")
+tracks/2/interp = 1
+tracks/2/loop_wrap = true
+tracks/2/keys = {
+"times": PackedFloat32Array(0, 0.1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_wihmn"]
@@ -62,6 +77,16 @@ libraries = {
 }
 
 [node name="Hammer" type="Sprite2D" parent="."]
-position = Vector2(-13, -3)
-rotation = -1.57079
+visible = false
+position = Vector2(6, -20)
 texture = ExtResource("3_re23o")
+
+[node name="FiniteStateMachine" type="Node" parent="." node_paths=PackedStringArray("initial_state")]
+script = ExtResource("4_ikce3")
+initial_state = NodePath("PlayerIdle")
+
+[node name="PlayerIdle" type="Node" parent="FiniteStateMachine"]
+script = ExtResource("5_53ryq")
+
+[node name="PlayerHammering" type="Node" parent="FiniteStateMachine"]
+script = ExtResource("6_udb4h")
