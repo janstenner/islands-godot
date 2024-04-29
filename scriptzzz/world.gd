@@ -3,8 +3,8 @@ extends Node2D
 @export var noise_height_texture : NoiseTexture2D
 var noise : Noise
 
-var width : int = 64
-var height : int = 64
+var width : int = 256
+var height : int = 256
 
 @onready var tile_map = $TileMap
 @onready var player = $Player
@@ -43,7 +43,7 @@ func generateWorld(origin_x, origin_y):
 			tile_map.set_cell(0, Vector2i(x,y), source_id, water_atlas)
 			
 			var noise_val : float = noise.get_noise_2d(x,y)
-			if noise_val >= 0.3:
+			if noise_val >= 0.0:
 				tile_map.set_cell(1, Vector2i(x,y), source_id, land_atlas)
 				
 
