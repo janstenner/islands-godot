@@ -1,7 +1,7 @@
 extends RigidBody2D
 
 
-var SPEED = 40
+var SPEED = 30
 
 #test
 func _physics_process(delta):

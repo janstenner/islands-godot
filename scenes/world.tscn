@@ -22,6 +22,7 @@ noise = SubResource("FastNoiseLite_va16x")
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_xwl1p"]
 noise_type = 3
+frequency = 0.0469
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_sdjbo"]
 seamless = true
@@ -29,8 +30,8 @@ noise = SubResource("FastNoiseLite_xwl1p")
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_2xuvn"]
 shader = ExtResource("2_pb36s")
-shader_parameter/scroll = Vector2(0.05, 0.05)
-shader_parameter/distortion_strength = 0.2
+shader_parameter/scroll = Vector2(0.01, 0.01)
+shader_parameter/distortion_strength = 0.0620001
 shader_parameter/noise = SubResource("NoiseTexture2D_sdjbo")
 
 [node name="World" type="Node2D"]
@@ -49,10 +50,9 @@ layer_2/z_index = 2
 layer_2/tile_data = PackedInt32Array()
 
 [node name="WaterShaderLayer" type="Sprite2D" parent="."]
-visible = false
 material = SubResource("ShaderMaterial_2xuvn")
-position = Vector2(-7.00002, 0.499996)
-scale = Vector2(4.32813, 2.46094)
+scale = Vector2(50, 50)
 texture = ExtResource("3_6cjew")
 
 [node name="Player" parent="." instance=ExtResource("1_2gnwj")]
+linear_damp = 1.612

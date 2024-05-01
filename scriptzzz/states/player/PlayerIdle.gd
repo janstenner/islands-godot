@@ -3,6 +3,8 @@ class_name PlayerIdle
 
 @export var animator : AnimationPlayer
 
+var particle_scene = preload("res://scenes/explosion_land.tscn")
+
 func Enter():
 	pass
 	
@@ -10,12 +12,13 @@ func Update(_delta : float):
 	#if(Input.get_vector("MoveLeft", "MoveRight", "MoveUp", "MoveDown").normalized()):
 		#state_transition.emit(self, "Moving")
 		
-	if Input.is_action_just_pressed("Hammer"):
+	if Input.is_action_pressed("Hammer"):
 		state_transition.emit(self, "PlayerHammering")
 
 func Exit():
 	var tile_map = get_node("/root/World/TileMap")
 	var player = get_node("/root/World/Player")
+	var world = get_node("/root/World")
 	
 	var tiles_to_remove = []
 	var layer_index = 1
@@ -26,6 +29,10 @@ func Exit():
 		var distance = tile_position.distance_to(player.global_position)
 		if distance <= 60:
 			tiles_to_remove.append(i)
+			var temp_particle = particle_scene.instantiate()
+			world.add_child(temp_particle)
+			temp_particle.global_position = tile_position
+			
 	
 	for tile_pos in tiles_to_remove:
 		tile_map.erase_cell(layer_index, tile_pos)
