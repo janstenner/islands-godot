@@ -78,7 +78,6 @@ libraries = {
 }
 
 [node name="Hammer" type="Sprite2D" parent="."]
-visible = false
 position = Vector2(6, -20)
 texture = ExtResource("3_re23o")
 
