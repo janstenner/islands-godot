@@ -13,8 +13,8 @@ void fragment() {
 	// Called for every pixel the material is visible on.
 	vec4 noise_col = texture(noise, UV + scroll * TIME);
 	vec4 screen_col = texture(SCREEN_TEXTURE,
-						SCREEN_UV + distortion_strength * noise_col.rr + noise_col.rr);
-	COLOR = screen_col - noise_col.r;
+						SCREEN_UV + distortion_strength * noise_col.rr);
+	COLOR = screen_col - (noise_col * vec4(0.2,0.2,0.2,0.0));
 }
 
 //void light() {
