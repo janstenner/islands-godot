@@ -7,6 +7,7 @@ extends Node2D
 @export var future_column_buffer : int = 5
 @export var base_scroll_speed : float = 40.0
 @export var scroll_acceleration : float = 2.0
+@export var boundary_wall_thickness : float = 32.0
 
 var noise : Noise
 var tile_size_px : int = 32
@@ -26,6 +27,11 @@ var generated_width : int
 @onready var player = $Player
 @onready var camera = $GameCamera
 @onready var water_layer = $WaterShaderLayer
+@onready var screen_bounds = $ScreenBounds
+@onready var left_bound = $ScreenBounds/LeftBound
+@onready var right_bound = $ScreenBounds/RightBound
+@onready var top_bound = $ScreenBounds/TopBound
+@onready var bottom_bound = $ScreenBounds/BottomBound
 
 var current_scroll_speed : float = 0.0
 
@@ -105,8 +111,7 @@ func _configure_camera():
 	camera.limit_bottom = half_view.y
 	camera.zoom = Vector2.ONE
 	camera.make_current()
-	if player and player.has_method("set_play_area_half_extents"):
-		player.set_play_area_half_extents(half_view)
+	_configure_screen_bounds(half_view)
 
 
 func _scroll_world(delta):
@@ -118,7 +123,6 @@ func _scroll_world(delta):
 		_shift_world_columns()
 	var offset = -scroll_offset_px
 	tile_map.position.x = offset
-	water_layer.position.x = offset
 
 
 func _shift_world_columns():
@@ -170,3 +174,23 @@ func _build_boundaries(border : int):
 		for y in range(boundary_min_y, boundary_max_y):
 			if x < play_min_x or x >= play_max_x or y < play_min_y or y >= play_max_y:
 				boundary_map.set_cell(0, Vector2i(x,y), source_id, outer_atlas)
+
+
+func _configure_screen_bounds(half_view : Vector2):
+	if not screen_bounds:
+		return
+	var thickness = boundary_wall_thickness
+	var vertical_height = half_view.y * 2.0 + thickness * 2.0
+	var horizontal_width = half_view.x * 2.0 + thickness * 2.0
+	if left_bound and left_bound.shape:
+		left_bound.position = Vector2(-half_view.x - thickness * 0.5, 0)
+		left_bound.shape.size = Vector2(thickness, vertical_height)
+	if right_bound and right_bound.shape:
+		right_bound.position = Vector2(half_view.x + thickness * 0.5, 0)
+		right_bound.shape.size = Vector2(thickness, vertical_height)
+	if top_bound and top_bound.shape:
+		top_bound.position = Vector2(0, -half_view.y - thickness * 0.5)
+		top_bound.shape.size = Vector2(horizontal_width, thickness)
+	if bottom_bound and bottom_bound.shape:
+		bottom_bound.position = Vector2(0, half_view.y + thickness * 0.5)
+		bottom_bound.shape.size = Vector2(horizontal_width, thickness)

@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://s8hyjvka1s0q"]
+[gd_scene load_steps=16 format=3 uid="uid://s8hyjvka1s0q"]
 
 [ext_resource type="PackedScene" uid="uid://dcydo58fpfn4j" path="res://scenes/player.tscn" id="1_2gnwj"]
 [ext_resource type="Script" uid="uid://cfb3ejoox8v6u" path="res://scriptzzz/world.gd" id="1_7tpkv"]
@@ -34,6 +34,18 @@ shader_parameter/noise = SubResource("NoiseTexture2D_sdjbo")
 shader_parameter/scroll = Vector2(0.01, 0.01)
 shader_parameter/distortion_strength = 0.0620001
 
+[sub_resource type="RectangleShape2D" id="RectShape_left"]
+size = Vector2(32, 1152)
+
+[sub_resource type="RectangleShape2D" id="RectShape_right"]
+size = Vector2(32, 1152)
+
+[sub_resource type="RectangleShape2D" id="RectShape_top"]
+size = Vector2(1152, 32)
+
+[sub_resource type="RectangleShape2D" id="RectShape_bottom"]
+size = Vector2(1152, 32)
+
 [node name="World" type="Node2D"]
 script = ExtResource("1_7tpkv")
 noise_height_texture = SubResource("NoiseTexture2D_dq2yx")
@@ -44,8 +56,6 @@ format = 2
 layer_0/name = "Water"
 layer_1/name = "Land"
 layer_1/z_index = 1
-collision_layer = 1
-collision_mask = 1
 
 [node name="BoundaryTileMap" type="TileMap" parent="."]
 visible = false
@@ -53,15 +63,32 @@ tile_set = ExtResource("2_fh1fw")
 format = 2
 layer_0/name = "Boundary"
 layer_0/z_index = 5
-collision_layer = 2
-collision_mask = 1
 
 [node name="WaterShaderLayer" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_2xuvn")
 scale = Vector2(50, 50)
 texture = ExtResource("3_6cjew")
 
+[node name="ScreenBounds" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 2
+
+[node name="LeftBound" type="CollisionShape2D" parent="ScreenBounds"]
+position = Vector2(-512, 0)
+shape = SubResource("RectShape_left")
+
+[node name="RightBound" type="CollisionShape2D" parent="ScreenBounds"]
+position = Vector2(512, 0)
+shape = SubResource("RectShape_right")
+
+[node name="TopBound" type="CollisionShape2D" parent="ScreenBounds"]
+position = Vector2(0, -288)
+shape = SubResource("RectShape_top")
+
+[node name="BottomBound" type="CollisionShape2D" parent="ScreenBounds"]
+position = Vector2(0, 288)
+shape = SubResource("RectShape_bottom")
+
 [node name="Player" parent="." instance=ExtResource("1_2gnwj")]
 
 [node name="GameCamera" type="Camera2D" parent="."]
-position = Vector2(0, 0)

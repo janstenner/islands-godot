@@ -4,8 +4,8 @@ class_name Player
 @export var SPEED : float = 30.0
 @export var jumping_power : float = 4.0
 @export var jump_gravity : float = -9.8
-@export var play_area_half_extents : Vector2 = Vector2.ZERO
-
+@export var land_collision_mask : int = 1
+@export var boundary_collision_mask : int = 2
 var jump_velocity : float = 0.0
 var jump_height : float = 0.0
 var pending_jump : bool = false
@@ -14,18 +14,28 @@ var is_jumping : bool = false
 @onready var body : RigidBody2D = $PlayerBody
 @onready var sprite : Sprite2D = $PlayerBody/PlayerSprite
 @onready var collision_shape : CollisionShape2D = $PlayerBody/CollisionShape2D
+@onready var jump_collision_shape : CollisionShape2D = $PlayerBody/JumpCollisionShape2D
 @onready var ground_shadow : Node2D = $GroundShadow
 @onready var crosshair : Sprite2D = $GroundShadow/Crosshair
-var clamp_body_next_frame : bool = false
 
 var sprite_base_position : Vector2 = Vector2.ZERO
 var sprite_base_scale : Vector2 = Vector2.ONE
 var collision_base_position : Vector2 = Vector2.ZERO
 var collision_base_scale : Vector2 = Vector2.ONE
+var default_collision_mask : int = 0
+
 func _ready():
 	if body:
 		body.top_level = true
 		body.global_position = global_position
+		default_collision_mask = 0
+		if land_collision_mask > 0:
+			default_collision_mask |= land_collision_mask
+		if default_collision_mask == 0:
+			default_collision_mask = body.collision_mask
+		body.collision_mask = default_collision_mask
+	if ground_shadow:
+		ground_shadow.global_position = global_position
 	if sprite:
 		sprite_base_position = sprite.position
 		sprite_base_scale = sprite.scale
@@ -34,6 +44,8 @@ func _ready():
 		collision_base_scale = collision_shape.scale
 	if crosshair:
 		crosshair.visible = false
+	if jump_collision_shape:
+		jump_collision_shape.disabled = true
 	_sync_root_to_body()
 
 func _physics_process(_delta):
@@ -52,8 +64,6 @@ func _physics_process(_delta):
 
 	if xy != Vector2.ZERO:
 		body.apply_central_impulse(xy)
-		clamp_body_next_frame = true
-	_clamp_body_to_bounds()
 	_sync_root_to_body()
 
 
@@ -76,6 +86,10 @@ func start_jump():
 	jump_height = 0.0
 	if collision_shape:
 		collision_shape.disabled = true
+	if jump_collision_shape:
+		jump_collision_shape.disabled = false
+	if body and boundary_collision_mask > 0:
+		body.collision_mask = boundary_collision_mask
 	if crosshair:
 		crosshair.visible = true
 		crosshair.position = Vector2.ZERO
@@ -100,6 +114,10 @@ func finish_jump():
 	jump_height = 0.0
 	if collision_shape:
 		collision_shape.disabled = false
+	if jump_collision_shape:
+		jump_collision_shape.disabled = true
+	if body:
+		body.collision_mask = default_collision_mask
 	if crosshair:
 		crosshair.visible = false
 	_reset_jump_visuals()
@@ -148,22 +166,3 @@ func get_body_position() -> Vector2:
 	if body:
 		return body.global_position
 	return global_position
-
-
-func set_play_area_half_extents(extents : Vector2):
-	play_area_half_extents = extents
-	clamp_body_next_frame = true
-
-
-func _clamp_body_to_bounds():
-	if not body or play_area_half_extents == Vector2.ZERO:
-		return
-	if not clamp_body_next_frame and body.sleeping:
-		return
-	var clamped = body.global_position
-	clamped.x = clamp(clamped.x, -play_area_half_extents.x, play_area_half_extents.x)
-	clamped.y = clamp(clamped.y, -play_area_half_extents.y, play_area_half_extents.y)
-	if clamped != body.global_position:
-		body.global_position = clamped
-		body.linear_velocity = Vector2.ZERO
-	clamp_body_next_frame = false
