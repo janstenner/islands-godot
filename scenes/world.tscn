@@ -54,3 +54,6 @@ texture = ExtResource("3_6cjew")
 
 [node name="Player" parent="." instance=ExtResource("1_2gnwj")]
 linear_damp = 1.612
+
+[node name="GameCamera" type="Camera2D" parent="."]
+position = Vector2(0, 0)
