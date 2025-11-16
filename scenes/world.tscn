@@ -44,8 +44,12 @@ format = 2
 layer_0/name = "Water"
 layer_1/name = "Land"
 layer_1/z_index = 1
-layer_2/name = "Outer"
-layer_2/z_index = 2
+
+[node name="BoundaryTileMap" type="TileMap" parent="."]
+tile_set = ExtResource("2_fh1fw")
+format = 2
+layer_0/name = "Boundary"
+layer_0/z_index = 5
 
 [node name="WaterShaderLayer" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_2xuvn")
