@@ -53,4 +53,3 @@ func generateWorld(origin_x, origin_y):
 				tile_map.set_cell(1, Vector2i(x,y), source_id, sand_atlas)
 			elif noise_val > grassThreshold:
 				tile_map.set_cell(1, Vector2i(x,y), source_id, grass_atlas)
-

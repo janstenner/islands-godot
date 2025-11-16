@@ -30,8 +30,9 @@ func Exit():
 		if distance <= 60:
 			tiles_to_remove.append(i)
 			var temp_particle = particle_scene.instantiate()
+			var world_space_position = tile_map.to_global(tile_position)
+			temp_particle.position = world.to_local(world_space_position)
 			world.add_child(temp_particle)
-			temp_particle.global_position = tile_position
 			
 	
 	for tile_pos in tiles_to_remove:

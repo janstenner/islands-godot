@@ -1,9 +1,9 @@
 [gd_scene load_steps=12 format=3 uid="uid://s8hyjvka1s0q"]
 
 [ext_resource type="PackedScene" uid="uid://dcydo58fpfn4j" path="res://scenes/player.tscn" id="1_2gnwj"]
-[ext_resource type="Script" path="res://scriptzzz/world.gd" id="1_7tpkv"]
+[ext_resource type="Script" uid="uid://cfb3ejoox8v6u" path="res://scriptzzz/world.gd" id="1_7tpkv"]
 [ext_resource type="TileSet" uid="uid://chwvfwqmtc0l4" path="res://sonstiges/tileset.tres" id="2_fh1fw"]
-[ext_resource type="Shader" path="res://scriptzzz/shader.gdshader" id="2_pb36s"]
+[ext_resource type="Shader" uid="uid://d0eric3fjtm7m" path="res://scriptzzz/shader.gdshader" id="2_pb36s"]
 [ext_resource type="Texture2D" uid="uid://camugdxa0royv" path="res://icon.svg" id="3_6cjew"]
 
 [sub_resource type="Gradient" id="Gradient_lrmp4"]
@@ -16,23 +16,23 @@ seed = 75
 frequency = 0.0546
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_dq2yx"]
-seamless = true
-color_ramp = SubResource("Gradient_lrmp4")
 noise = SubResource("FastNoiseLite_va16x")
+color_ramp = SubResource("Gradient_lrmp4")
+seamless = true
 
 [sub_resource type="FastNoiseLite" id="FastNoiseLite_xwl1p"]
 noise_type = 3
 frequency = 0.0469
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_sdjbo"]
-seamless = true
 noise = SubResource("FastNoiseLite_xwl1p")
+seamless = true
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_2xuvn"]
 shader = ExtResource("2_pb36s")
+shader_parameter/noise = SubResource("NoiseTexture2D_sdjbo")
 shader_parameter/scroll = Vector2(0.01, 0.01)
 shader_parameter/distortion_strength = 0.0620001
-shader_parameter/noise = SubResource("NoiseTexture2D_sdjbo")
 
 [node name="World" type="Node2D"]
 script = ExtResource("1_7tpkv")
@@ -44,10 +44,8 @@ format = 2
 layer_0/name = "Water"
 layer_1/name = "Land"
 layer_1/z_index = 1
-layer_1/tile_data = PackedInt32Array()
 layer_2/name = "Outer"
 layer_2/z_index = 2
-layer_2/tile_data = PackedInt32Array()
 
 [node name="WaterShaderLayer" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_2xuvn")
