@@ -22,6 +22,7 @@ func Exit():
 	
 	var tiles_to_remove = []
 	var layer_index = 1
+	var hit_land = false
 
 	# Iterate through all tiles in layer 1
 	for i in tile_map.get_used_cells(layer_index):
@@ -33,8 +34,12 @@ func Exit():
 			var world_space_position = tile_map.to_global(tile_position)
 			temp_particle.position = world.to_local(world_space_position)
 			world.add_child(temp_particle)
+			hit_land = true
 			
 	
 	for tile_pos in tiles_to_remove:
 		tile_map.erase_cell(layer_index, tile_pos)
+	
+	if hit_land:
+		player.queue_jump()
 	pass

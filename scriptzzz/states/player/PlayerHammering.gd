@@ -2,6 +2,7 @@ extends State
 class_name PlayerHammering
 
 @onready var animation_player = $"../../AnimationPlayer"
+@onready var player : Player = $"../.."
 
 
 func Enter():
@@ -10,4 +11,7 @@ func Enter():
 	
 	animation_player.play("hammer_animation")
 	await animation_player.animation_finished
-	state_transition.emit(self, "PlayerIdle")
+	if player and player.consume_jump_request():
+		state_transition.emit(self, "PlayerJumping")
+	else:
+		state_transition.emit(self, "PlayerIdle")

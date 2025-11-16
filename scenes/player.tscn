@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://dcydo58fpfn4j"]
+[gd_scene load_steps=12 format=3 uid="uid://dcydo58fpfn4j"]
 
 [ext_resource type="Script" path="res://scriptzzz/Player.gd" id="1_mbmkg"]
 [ext_resource type="Texture2D" uid="uid://bdw70eofhe6b" path="res://graphix/sprites/player.png" id="2_df5oy"]
@@ -6,6 +6,8 @@
 [ext_resource type="Script" path="res://scriptzzz/FiniteStateMachine.gd" id="4_ikce3"]
 [ext_resource type="Script" path="res://scriptzzz/states/player/PlayerIdle.gd" id="5_53ryq"]
 [ext_resource type="Script" path="res://scriptzzz/states/player/PlayerHammering.gd" id="6_udb4h"]
+[ext_resource type="Texture2D" uid="uid://kt1lpno2cifj" path="res://graphix/sprites/crosshair.png" id="7_6b0bl"]
+[ext_resource type="Script" path="res://scriptzzz/states/player/PlayerJumping.gd" id="8_x2w02"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wkvrw"]
 radius = 14.1421
@@ -62,6 +64,11 @@ continuous_cd = 1
 script = ExtResource("1_mbmkg")
 metadata/_edit_group_ = true
 
+[node name="Crosshair" type="Sprite2D" parent="."]
+visible = false
+z_index = -1
+texture = ExtResource("7_6b0bl")
+
 [node name="PlayerSprite" type="Sprite2D" parent="."]
 position = Vector2(0, 2)
 texture = ExtResource("2_df5oy")
@@ -91,3 +98,6 @@ script = ExtResource("5_53ryq")
 
 [node name="PlayerHammering" type="Node" parent="FiniteStateMachine"]
 script = ExtResource("6_udb4h")
+
+[node name="PlayerJumping" type="Node" parent="FiniteStateMachine"]
+script = ExtResource("8_x2w02")
