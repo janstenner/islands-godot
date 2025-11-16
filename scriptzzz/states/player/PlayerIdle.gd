@@ -22,24 +22,22 @@ func Exit():
 	
 	var tiles_to_remove = []
 	var layer_index = 1
-	var hit_land = false
+	var player_position : Vector2 = player.get_body_position()
 
 	# Iterate through all tiles in layer 1
 	for i in tile_map.get_used_cells(layer_index):
 		var tile_position = tile_map.map_to_local(i)
-		var distance = tile_position.distance_to(player.global_position)
+		var distance = tile_position.distance_to(player_position)
 		if distance <= 60:
 			tiles_to_remove.append(i)
 			var temp_particle = particle_scene.instantiate()
 			var world_space_position = tile_map.to_global(tile_position)
 			temp_particle.position = world.to_local(world_space_position)
 			world.add_child(temp_particle)
-			hit_land = true
 			
 	
 	for tile_pos in tiles_to_remove:
 		tile_map.erase_cell(layer_index, tile_pos)
 	
-	if hit_land:
-		player.queue_jump()
+	player.queue_jump()
 	pass

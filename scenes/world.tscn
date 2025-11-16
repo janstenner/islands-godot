@@ -44,12 +44,17 @@ format = 2
 layer_0/name = "Water"
 layer_1/name = "Land"
 layer_1/z_index = 1
+collision_layer = 1
+collision_mask = 1
 
 [node name="BoundaryTileMap" type="TileMap" parent="."]
+visible = false
 tile_set = ExtResource("2_fh1fw")
 format = 2
 layer_0/name = "Boundary"
 layer_0/z_index = 5
+collision_layer = 2
+collision_mask = 1
 
 [node name="WaterShaderLayer" type="Sprite2D" parent="."]
 material = SubResource("ShaderMaterial_2xuvn")
@@ -57,7 +62,6 @@ scale = Vector2(50, 50)
 texture = ExtResource("3_6cjew")
 
 [node name="Player" parent="." instance=ExtResource("1_2gnwj")]
-linear_damp = 1.612
 
 [node name="GameCamera" type="Camera2D" parent="."]
 position = Vector2(0, 0)

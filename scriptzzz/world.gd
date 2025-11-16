@@ -105,6 +105,8 @@ func _configure_camera():
 	camera.limit_bottom = half_view.y
 	camera.zoom = Vector2.ONE
 	camera.make_current()
+	if player and player.has_method("set_play_area_half_extents"):
+		player.set_play_area_half_extents(half_view)
 
 
 func _scroll_world(delta):
@@ -114,8 +116,9 @@ func _scroll_world(delta):
 	while scroll_offset_px >= tile_size_px:
 		scroll_offset_px -= tile_size_px
 		_shift_world_columns()
-	tile_map.position.x = -scroll_offset_px
-	water_layer.position.x = -scroll_offset_px
+	var offset = -scroll_offset_px
+	tile_map.position.x = offset
+	water_layer.position.x = offset
 
 
 func _shift_world_columns():
