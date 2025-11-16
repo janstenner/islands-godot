@@ -5,9 +5,11 @@ extends Node2D
 @export var visible_tiles : Vector2i = Vector2i(32, 18)
 @export var border_thickness : int = 2
 @export var future_column_buffer : int = 5
-@export var base_scroll_speed : float = 40.0
-@export var scroll_acceleration : float = 2.0
+@export var base_scroll_speed : float = 80.0
+@export var scroll_acceleration : float = 5.0
 @export var boundary_wall_thickness : float = 256.0
+@export var max_hearts : int = 3
+const HEART_LOSS_RADIUS : float = 120.0
 
 var noise : Noise
 var tile_size_px : int = 32
@@ -23,6 +25,8 @@ var world_right_column : int
 var generated_width : int
 var camera_half_view : Vector2 = Vector2.ZERO
 var game_over : bool = false
+var current_hearts : int = 0
+var heart_blast_particles = preload("res://scenes/explosion_land.tscn")
 
 @onready var tile_map = $TileMap
 @onready var boundary_map = $BoundaryTileMap
@@ -54,8 +58,10 @@ func _ready():
 		player.landed.connect(_on_player_landed)
 	_configure_camera()
 	generateWorld(0,0)
+	current_hearts = max_hearts
 	if Hud:
 		Hud.start_timer()
+		Hud.set_remaining_hearts(current_hearts)
 	pass 
 
 
@@ -219,7 +225,7 @@ func _on_player_landed(position : Vector2):
 		return
 	var cell = tile_map.local_to_map(tile_map.to_local(position))
 	if tile_map.get_cell_source_id(1, cell) != -1:
-		trigger_game_over("Landed on land")
+		_lose_heart(position)
 
 
 func trigger_game_over(_reason : String = ""):
@@ -233,3 +239,35 @@ func trigger_game_over(_reason : String = ""):
 		Hud.show_game_over(time_text)
 	else:
 		get_tree().paused = true
+
+
+func _lose_heart(position : Vector2):
+	if current_hearts <= 0:
+		trigger_game_over("No hearts")
+		return
+	current_hearts -= 1
+	if Hud:
+		Hud.set_remaining_hearts(current_hearts)
+	_spawn_circular_break_effect(position, HEART_LOSS_RADIUS)
+	if current_hearts <= 0:
+		trigger_game_over("No hearts")
+
+
+func _spawn_circular_break_effect(center_position : Vector2, radius : float):
+	var layer_index = 1
+	var tile_size = tile_map.tile_set.tile_size
+	var radius_tiles = int(ceil(radius / float(max(tile_size.x, tile_size.y))))
+	var center_cell = tile_map.local_to_map(tile_map.to_local(center_position))
+	for x in range(center_cell.x - radius_tiles, center_cell.x + radius_tiles + 1):
+		for y in range(center_cell.y - radius_tiles, center_cell.y + radius_tiles + 1):
+			var cell = Vector2i(x, y)
+			var source_id = tile_map.get_cell_source_id(layer_index, cell)
+			if source_id == -1:
+				continue
+			var tile_position = tile_map.map_to_local(cell)
+			if tile_position.distance_to(center_position) <= radius:
+				tile_map.erase_cell(layer_index, cell)
+				var particle = heart_blast_particles.instantiate()
+				var world_space_position = tile_map.to_global(tile_position)
+				particle.position = to_local(world_space_position)
+				add_child(particle)

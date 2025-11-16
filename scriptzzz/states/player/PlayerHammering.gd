@@ -15,6 +15,8 @@ func Enter():
 	
 	_is_hammering = true
 	await _hammer_loop()
+	if player:
+		player.queue_jump()
 	if player and player.consume_jump_request():
 		state_transition.emit(self, "PlayerJumping")
 	else:
@@ -45,7 +47,6 @@ func _perform_hammer_hit():
 	var tile_size = tile_map.tile_set.tile_size
 	var radius_tiles = int(ceil(HAMMER_RADIUS / max(tile_size.x, tile_size.y)))
 	var player_cell = tile_map.local_to_map(tile_map.to_local(player_position))
-	var hit_land = false
 
 	for x in range(player_cell.x - radius_tiles, player_cell.x + radius_tiles + 1):
 		for y in range(player_cell.y - radius_tiles, player_cell.y + radius_tiles + 1):
@@ -60,10 +61,6 @@ func _perform_hammer_hit():
 				var world_space_position = tile_map.to_global(tile_position)
 				temp_particle.position = world.to_local(world_space_position)
 				world.add_child(temp_particle)
-				hit_land = true
 			
 	for tile_pos in tiles_to_remove:
 		tile_map.erase_cell(layer_index, tile_pos)
-	
-	if hit_land and player:
-		player.queue_jump()

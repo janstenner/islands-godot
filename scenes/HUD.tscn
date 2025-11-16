@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cw0s5g3bkwv2l"]
+[gd_scene load_steps=3 format=3 uid="uid://cw0s5g3bkwv2l"]
 
-[ext_resource type="Script" path="res://scriptzzz/HUD.gd" id="1_b35k5"]
+[ext_resource type="Script" uid="uid://dgjng3vbkbqg7" path="res://scriptzzz/HUD.gd" id="1_b35k5"]
+[ext_resource type="Texture2D" uid="uid://d3swhue337hdh" path="res://graphix/sprites/heart.png" id="2_fls4u"]
 
 [node name="HUD" type="CanvasLayer"]
 layer = 4
@@ -20,22 +21,51 @@ text = "Pause"
 [node name="TimerLabel" type="Label" parent="."]
 anchors_preset = 1
 anchor_left = 1.0
-anchor_top = 0.0
 anchor_right = 1.0
-anchor_bottom = 0.0
 offset_left = -180.0
 offset_top = 10.0
 offset_right = -20.0
 offset_bottom = 40.0
 grow_horizontal = 0
 grow_vertical = 0
-horizontal_alignment = 2
 text = "00:00.000"
+horizontal_alignment = 2
+
+[node name="HeartsContainer" type="HBoxContainer" parent="."]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -96.0
+offset_top = 10.0
+offset_right = 96.0
+offset_bottom = 42.0
+grow_horizontal = 2
+grow_vertical = 0
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="Heart1" type="TextureRect" parent="HeartsContainer"]
+custom_minimum_size = Vector2(42, 32)
+layout_mode = 2
+texture = ExtResource("2_fls4u")
+stretch_mode = 3
+
+[node name="Heart2" type="TextureRect" parent="HeartsContainer"]
+custom_minimum_size = Vector2(42, 32)
+layout_mode = 2
+texture = ExtResource("2_fls4u")
+stretch_mode = 3
+
+[node name="Heart3" type="TextureRect" parent="HeartsContainer"]
+custom_minimum_size = Vector2(42, 32)
+layout_mode = 2
+texture = ExtResource("2_fls4u")
+stretch_mode = 3
 
 [node name="PauseLayer" type="ColorRect" parent="."]
 process_mode = 2
 visible = false
-anchors_preset = -1
+anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = -3.0
@@ -63,16 +93,20 @@ size_flags_vertical = 4
 
 [node name="MenuContainer" type="VBoxContainer" parent="PauseLayer/PauseMenu"]
 layout_mode = 2
-alignment = 1
 size_flags_horizontal = 4
 size_flags_vertical = 4
+alignment = 1
 
 [node name="GameOverLabel" type="Label" parent="PauseLayer/PauseMenu/MenuContainer"]
-layout_mode = 2
 visible = false
-horizontal_alignment = 1
+layout_mode = 2
 text = "Time survived: 00:00.000"
+horizontal_alignment = 1
 
 [node name="ResumeButton" type="Button" parent="PauseLayer/PauseMenu/MenuContainer"]
 layout_mode = 2
 text = "Resume"
+
+[node name="RestartButton" type="Button" parent="PauseLayer/PauseMenu/MenuContainer"]
+layout_mode = 2
+text = "Restart"

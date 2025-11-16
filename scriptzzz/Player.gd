@@ -8,10 +8,16 @@ signal landed(position : Vector2)
 @export var jump_gravity : float = -9.8
 @export var land_collision_mask : int = 1
 @export var boundary_collision_mask : int = 2
+const MAX_JUMP_HEIGHT : float = 1.0
+const SHIP_FLICKER_FREQ : float = 6.0
+const CROSSHAIR_SCALE_FREQ : float = 5.0
 var jump_velocity : float = 0.0
 var jump_height : float = 0.0
 var pending_jump : bool = false
 var is_jumping : bool = false
+var jump_time : float = 0.0
+var crosshair_time : float = 0.0
+var crosshair_frame_counter : int = 0
 
 @onready var body : RigidBody2D = $PlayerBody
 @onready var sprite : Sprite2D = $PlayerBody/PlayerSprite
@@ -19,12 +25,17 @@ var is_jumping : bool = false
 @onready var jump_collision_shape : CollisionShape2D = $PlayerBody/JumpCollisionShape2D
 @onready var ground_shadow : Node2D = $GroundShadow
 @onready var crosshair : Sprite2D = $GroundShadow/Crosshair
+@onready var drop_shadow_sprite : Sprite2D = $GroundShadow/DropShadowSprite
+@onready var tile_map : TileMap = get_node("/root/World/TileMap")
 
 var sprite_base_position : Vector2 = Vector2.ZERO
 var sprite_base_scale : Vector2 = Vector2.ONE
 var collision_base_position : Vector2 = Vector2.ZERO
 var collision_base_scale : Vector2 = Vector2.ONE
+var sprite_base_modulate : Color = Color(1, 1, 1, 1)
+var crosshair_base_modulate : Color = Color(1, 1, 1, 1)
 var default_collision_mask : int = 0
+var rng := RandomNumberGenerator.new()
 
 func _ready():
 	if body:
@@ -42,16 +53,19 @@ func _ready():
 	if sprite:
 		sprite_base_position = sprite.position
 		sprite_base_scale = sprite.scale
+		sprite_base_modulate = sprite.modulate
 	if collision_shape:
 		collision_base_position = collision_shape.position
 		collision_base_scale = collision_shape.scale
 	if crosshair:
 		crosshair.visible = false
+		crosshair_base_modulate = crosshair.modulate
 	if jump_collision_shape:
 		jump_collision_shape.disabled = true
+	rng.randomize()
 	_sync_root_to_body()
 
-func _physics_process(_delta):
+func _physics_process(delta):
 	if not body:
 		return
 	var directionx = Input.get_axis("ui_left", "ui_right")
@@ -67,6 +81,9 @@ func _physics_process(_delta):
 
 	if xy != Vector2.ZERO:
 		body.apply_central_impulse(xy)
+	if is_jumping:
+		jump_time += delta
+		crosshair_time += delta
 	_sync_root_to_body()
 
 
@@ -87,6 +104,9 @@ func start_jump():
 	is_jumping = true
 	jump_velocity = jumping_power
 	jump_height = 0.0
+	jump_time = 0.0
+	crosshair_time = 0.0
+	crosshair_frame_counter = 0
 	if collision_shape:
 		collision_shape.disabled = true
 	if jump_collision_shape:
@@ -96,9 +116,6 @@ func start_jump():
 			body.collision_mask = boundary_collision_mask
 		else:
 			body.collision_mask = default_collision_mask
-	if crosshair:
-		crosshair.visible = true
-		crosshair.position = Vector2.ZERO
 	_apply_jump_visuals()
 
 
@@ -106,7 +123,8 @@ func update_jump(delta : float) -> bool:
 	if not is_jumping:
 		return false
 	jump_velocity += jump_gravity * delta
-	jump_height += jump_velocity * delta
+	jump_height += jump_velocity * delta * 0.5
+	jump_height = clamp(jump_height, 0.0, MAX_JUMP_HEIGHT)
 	if jump_height <= 0.0:
 		finish_jump()
 		return false
@@ -125,8 +143,6 @@ func finish_jump():
 		jump_collision_shape.disabled = true
 	if body:
 		body.collision_mask = default_collision_mask
-	if crosshair:
-		crosshair.visible = false
 	_reset_jump_visuals()
 	if was_jumping:
 		emit_signal("landed", get_body_position())
@@ -137,12 +153,19 @@ func is_jump_active() -> bool:
 
 
 func _apply_jump_visuals():
-	var scale_factor = 1.0 + jump_height
+	var clamped_height = clamp(jump_height, 0.0, MAX_JUMP_HEIGHT)
+	var scale_factor = 1.0 + clamped_height * 1.3
 	if sprite:
 		sprite.scale = sprite_base_scale * scale_factor
+		var base_opacity = lerp(1.0, 0.5, clamped_height / MAX_JUMP_HEIGHT)
+		var flicker = 0.85 + 0.15 * sin(jump_time * SHIP_FLICKER_FREQ * TAU)
+		var opacity = clamp(base_opacity * flicker, 0.3, 1.0)
+		var color = sprite_base_modulate
+		color.a = opacity
+		sprite.modulate = color
 	if collision_shape:
 		collision_shape.scale = collision_base_scale * scale_factor
-	var offset_factor = jump_height * 100.0
+	var offset_factor = jump_height * 50.0
 	var offset = Vector2(-offset_factor, -offset_factor)
 	if body:
 		offset = offset.rotated(-body.rotation)
@@ -150,15 +173,18 @@ func _apply_jump_visuals():
 		sprite.position = sprite_base_position + offset
 	if collision_shape:
 		collision_shape.position = collision_base_position + offset
+	_update_ground_shadow(clamped_height)
 
 
 func _reset_jump_visuals():
 	if sprite:
 		sprite.scale = sprite_base_scale
 		sprite.position = sprite_base_position
+		sprite.modulate = sprite_base_modulate
 	if collision_shape:
 		collision_shape.scale = collision_base_scale
 		collision_shape.position = collision_base_position
+	_update_ground_shadow(0.0)
 
 
 func _sync_root_to_body():
@@ -168,10 +194,48 @@ func _sync_root_to_body():
 	global_rotation = 0.0
 	if ground_shadow:
 		ground_shadow.global_position = body.global_position
-		ground_shadow.global_rotation = 0.0
+	_update_ground_shadow(jump_height)
 
 
 func get_body_position() -> Vector2:
 	if body:
 		return body.global_position
 	return global_position
+
+
+func _update_ground_shadow(clamped_height : float):
+	if not ground_shadow:
+		return
+	ground_shadow.global_position = body.global_position
+	if drop_shadow_sprite:
+		drop_shadow_sprite.visible = is_jumping
+		if is_jumping:
+			drop_shadow_sprite.rotation = body.rotation
+			var shadow_scale = max(0.1, 1.0 - (clamped_height * 0.8))
+			drop_shadow_sprite.scale = Vector2.ONE * shadow_scale
+		else:
+			drop_shadow_sprite.rotation = 0.0
+			drop_shadow_sprite.scale = Vector2.ONE
+	if crosshair:
+		var on_land = false
+		if tile_map:
+			var cell = tile_map.local_to_map(tile_map.to_local(body.global_position))
+			on_land = tile_map.get_cell_source_id(1, cell) != -1
+		crosshair.visible = is_jumping and on_land
+		if crosshair.visible:
+			var scale_bonus = 2.0 + 0.5 * sin(crosshair_time * CROSSHAIR_SCALE_FREQ * TAU)
+			crosshair.scale = Vector2.ONE * scale_bonus
+			var flicker = 0.8 + 0.4 * sin(crosshair_time * (CROSSHAIR_SCALE_FREQ * 0.7) * TAU)
+			var color = crosshair_base_modulate
+			color.a = clamp(flicker, 0.2, 1.0)
+			crosshair.modulate = color
+			crosshair_frame_counter += 1
+			if crosshair_frame_counter >= 4:
+				crosshair_frame_counter = 0
+				rng.randomize()
+				crosshair.rotation = rng.randf_range(-PI, PI)
+		else:
+			crosshair.scale = Vector2.ONE
+			crosshair.modulate = crosshair_base_modulate
+			crosshair.rotation = 0.0
+			crosshair_frame_counter = 0

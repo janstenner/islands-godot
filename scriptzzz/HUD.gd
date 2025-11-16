@@ -2,24 +2,36 @@ extends CanvasLayer
 
 @onready var pause_button = $PauseButton
 @onready var resume_button = $PauseLayer/PauseMenu/MenuContainer/ResumeButton
+@onready var restart_button = $PauseLayer/PauseMenu/MenuContainer/RestartButton
 @onready var pause_layer = $PauseLayer
 @onready var timer_label = $TimerLabel
 @onready var game_over_label = $PauseLayer/PauseMenu/MenuContainer/GameOverLabel
+@onready var hearts_container = $HeartsContainer
+var heart_sprites : Array = []
 
 var elapsed_time : float = 0.0
 var timer_running : bool = false
 var is_game_over : bool = false
 
 func _ready():
+	process_mode = Node.PROCESS_MODE_ALWAYS
 	pause_button.pressed.connect(pause)
 	resume_button.pressed.connect(resume)
+	restart_button.pressed.connect(restart_game)
 	_reset_overlay()
+	set_process_unhandled_input(true)
+	heart_sprites = hearts_container.get_children()
+	reset_hearts()
 
 
 func _process(delta):
 	if timer_running and not get_tree().paused:
 		elapsed_time += delta
 		_update_timer_label()
+	if Input.is_action_just_pressed("Reset"):
+		restart_game()
+	elif is_game_over and Input.is_action_just_pressed("Hammer"):
+		restart_game()
 
 
 func pause():
@@ -42,6 +54,7 @@ func start_timer():
 	timer_running = true
 	is_game_over = false
 	_reset_overlay()
+	reset_hearts()
 	_update_timer_label()
 
 
@@ -55,6 +68,7 @@ func show_game_over(time_text : String):
 	game_over_label.text = "Time survived: %s" % time_text
 	game_over_label.show()
 	resume_button.hide()
+	restart_button.show()
 	pause_layer.show()
 	pause_button.disabled = true
 	get_tree().paused = true
@@ -79,5 +93,35 @@ func _reset_overlay():
 	pause_button.disabled = false
 	pause_layer.hide()
 	resume_button.show()
+	restart_button.hide()
 	game_over_label.hide()
 	get_tree().paused = false
+	reset_hearts()
+
+
+func restart_game():
+	get_tree().paused = false
+	timer_running = false
+	is_game_over = false
+	get_tree().change_scene_to_file("res://scenes/world.tscn")
+
+
+func _unhandled_input(_event):
+	pass
+
+
+func reset_hearts():
+	if heart_sprites.is_empty():
+		return
+	set_remaining_hearts(heart_sprites.size())
+
+
+func set_remaining_hearts(amount : int):
+	if heart_sprites.is_empty():
+		return
+	for i in range(heart_sprites.size()):
+		var sprite = heart_sprites[i]
+		if i < amount:
+			sprite.modulate = Color(1, 1, 1, 1)
+		else:
+			sprite.modulate = Color(0, 0, 0, 0.7)

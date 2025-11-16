@@ -65,6 +65,7 @@ layer_0/name = "Boundary"
 layer_0/z_index = 5
 
 [node name="WaterShaderLayer" type="Sprite2D" parent="."]
+visible = false
 material = SubResource("ShaderMaterial_2xuvn")
 scale = Vector2(50, 50)
 texture = ExtResource("3_6cjew")
