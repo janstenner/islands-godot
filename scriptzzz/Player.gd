@@ -28,9 +28,10 @@ func _ready():
 	if body:
 		body.top_level = true
 		body.global_position = global_position
-		default_collision_mask = 0
-		if land_collision_mask > 0:
-			default_collision_mask |= land_collision_mask
+		var layer_bits = land_collision_mask | boundary_collision_mask
+		if layer_bits != 0:
+			body.collision_layer = layer_bits
+		default_collision_mask = land_collision_mask
 		if default_collision_mask == 0:
 			default_collision_mask = body.collision_mask
 		body.collision_mask = default_collision_mask
@@ -88,8 +89,11 @@ func start_jump():
 		collision_shape.disabled = true
 	if jump_collision_shape:
 		jump_collision_shape.disabled = false
-	if body and boundary_collision_mask > 0:
-		body.collision_mask = boundary_collision_mask
+	if body:
+		if boundary_collision_mask > 0:
+			body.collision_mask = boundary_collision_mask
+		else:
+			body.collision_mask = default_collision_mask
 	if crosshair:
 		crosshair.visible = true
 		crosshair.position = Vector2.ZERO

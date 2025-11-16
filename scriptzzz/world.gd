@@ -7,7 +7,7 @@ extends Node2D
 @export var future_column_buffer : int = 5
 @export var base_scroll_speed : float = 40.0
 @export var scroll_acceleration : float = 2.0
-@export var boundary_wall_thickness : float = 32.0
+@export var boundary_wall_thickness : float = 256.0
 
 var noise : Noise
 var tile_size_px : int = 32
