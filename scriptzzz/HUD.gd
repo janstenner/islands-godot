@@ -7,6 +7,7 @@ extends CanvasLayer
 @onready var timer_label = $TimerLabel
 @onready var game_over_label = $PauseLayer/PauseMenu/MenuContainer/GameOverLabel
 @onready var hearts_container = $HeartsContainer
+@onready var bonus_bar = $BonusBar
 var heart_sprites : Array = []
 
 var elapsed_time : float = 0.0
@@ -22,6 +23,7 @@ func _ready():
 	set_process_unhandled_input(true)
 	heart_sprites = hearts_container.get_children()
 	reset_hearts()
+	update_bonus_charge(0.0, 0.0, 1.0)
 
 
 func _process(delta):
@@ -55,6 +57,7 @@ func start_timer():
 	is_game_over = false
 	_reset_overlay()
 	reset_hearts()
+	update_bonus_charge(0.0, 0.0, 1.0)
 	_update_timer_label()
 
 
@@ -97,6 +100,7 @@ func _reset_overlay():
 	game_over_label.hide()
 	get_tree().paused = false
 	reset_hearts()
+	update_bonus_charge(0.0, 0.0, 1.0)
 
 
 func restart_game():
@@ -125,3 +129,12 @@ func set_remaining_hearts(amount : int):
 			sprite.modulate = Color(1, 1, 1, 1)
 		else:
 			sprite.modulate = Color(0, 0, 0, 0.7)
+
+
+func update_bonus_charge(current_value : float, min_value : float, max_value : float):
+	if max_value <= min_value:
+		bonus_bar.visible = false
+		return
+	var ratio = clamp((current_value - min_value) / (max_value - min_value), 0.0, 1.0)
+	bonus_bar.value = ratio
+	bonus_bar.visible = ratio > 0.0

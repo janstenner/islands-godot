@@ -4,12 +4,16 @@ class_name Player
 signal landed(position : Vector2)
 
 @export var SPEED : float = 30.0
-@export var jumping_power : float = 4.0
+@export var jumping_power : float = 3.0
 @export var jump_gravity : float = -9.8
 @export var land_collision_mask : int = 1
 @export var boundary_collision_mask : int = 2
 const MAX_JUMP_HEIGHT : float = 1.0
-const SHIP_FLICKER_FREQ : float = 6.0
+const MIN_BONUS_JUMPING_POWER : float = 0.0
+const MAX_BONUS_JUMPING_POWER : float = 4.0
+const BONUS_CHARGE_RATE : float = 1.0
+const BONUS_DECAY_RATE : float = 1.8
+const SHIP_FLICKER_FREQ : float = 8.0
 const CROSSHAIR_SCALE_FREQ : float = 5.0
 var jump_velocity : float = 0.0
 var jump_height : float = 0.0
@@ -18,6 +22,8 @@ var is_jumping : bool = false
 var jump_time : float = 0.0
 var crosshair_time : float = 0.0
 var crosshair_frame_counter : int = 0
+var bonus_jumping_power : float = 0.0
+var is_hammering : bool = false
 
 @onready var body : RigidBody2D = $PlayerBody
 @onready var sprite : Sprite2D = $PlayerBody/PlayerSprite
@@ -27,6 +33,7 @@ var crosshair_frame_counter : int = 0
 @onready var crosshair : Sprite2D = $GroundShadow/Crosshair
 @onready var drop_shadow_sprite : Sprite2D = $GroundShadow/DropShadowSprite
 @onready var tile_map : TileMap = get_node("/root/World/TileMap")
+@onready var hud : CanvasLayer = get_node("/root/Hud")
 
 var sprite_base_position : Vector2 = Vector2.ZERO
 var sprite_base_scale : Vector2 = Vector2.ONE
@@ -63,6 +70,7 @@ func _ready():
 	if jump_collision_shape:
 		jump_collision_shape.disabled = true
 	rng.randomize()
+	bonus_jumping_power = MIN_BONUS_JUMPING_POWER
 	_sync_root_to_body()
 
 func _physics_process(delta):
@@ -84,6 +92,7 @@ func _physics_process(delta):
 	if is_jumping:
 		jump_time += delta
 		crosshair_time += delta
+	_update_bonus_power(delta)
 	_sync_root_to_body()
 
 
@@ -102,7 +111,7 @@ func start_jump():
 	if is_jumping:
 		return
 	is_jumping = true
-	jump_velocity = jumping_power
+	jump_velocity = jumping_power + bonus_jumping_power
 	jump_height = 0.0
 	jump_time = 0.0
 	crosshair_time = 0.0
@@ -201,6 +210,19 @@ func get_body_position() -> Vector2:
 	if body:
 		return body.global_position
 	return global_position
+
+
+func set_hammering_state(active : bool):
+	is_hammering = active
+
+
+func _update_bonus_power(delta : float):
+	if is_hammering:
+		bonus_jumping_power = clamp(bonus_jumping_power + BONUS_CHARGE_RATE * delta, MIN_BONUS_JUMPING_POWER, MAX_BONUS_JUMPING_POWER)
+	else:
+		bonus_jumping_power = clamp(bonus_jumping_power - BONUS_DECAY_RATE * delta, MIN_BONUS_JUMPING_POWER, MAX_BONUS_JUMPING_POWER)
+	if hud:
+		hud.update_bonus_charge(bonus_jumping_power, MIN_BONUS_JUMPING_POWER, MAX_BONUS_JUMPING_POWER)
 
 
 func _update_ground_shadow(clamped_height : float):

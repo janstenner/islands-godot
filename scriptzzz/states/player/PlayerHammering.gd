@@ -14,9 +14,11 @@ func Enter():
 	# AudioManager.play_sound(AudioManager.PLAYER_ATTACK_SWING, 0.3, 1)
 	
 	_is_hammering = true
+	if player:
+		player.set_hammering_state(true)
 	await _hammer_loop()
 	if player:
-		player.queue_jump()
+		player.set_hammering_state(false)
 	if player and player.consume_jump_request():
 		state_transition.emit(self, "PlayerJumping")
 	else:
@@ -30,7 +32,17 @@ func Exit():
 func _hammer_loop():
 	while _is_hammering:
 		animation_player.play("hammer_animation")
-		await animation_player.animation_finished
+		while animation_player.is_playing():
+			if Input.is_action_just_pressed("Jump") and player:
+				player.queue_jump()
+				animation_player.stop()
+				_is_hammering = false
+				return
+			await get_tree().process_frame
+		if Input.is_action_just_pressed("Jump") and player:
+			player.queue_jump()
+			_is_hammering = false
+			return
 		_perform_hammer_hit()
 		if not Input.is_action_pressed("Hammer"):
 			_is_hammering = false

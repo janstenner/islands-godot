@@ -269,5 +269,5 @@ func _spawn_circular_break_effect(center_position : Vector2, radius : float):
 				tile_map.erase_cell(layer_index, cell)
 				var particle = heart_blast_particles.instantiate()
 				var world_space_position = tile_map.to_global(tile_position)
-				particle.position = to_local(world_space_position)
+				particle.global_position = world_space_position
 				add_child(particle)
