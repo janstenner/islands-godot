@@ -17,6 +17,21 @@ size_flags_horizontal = 0
 size_flags_vertical = 0
 text = "Pause"
 
+[node name="TimerLabel" type="Label" parent="."]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_top = 0.0
+anchor_right = 1.0
+anchor_bottom = 0.0
+offset_left = -180.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = 40.0
+grow_horizontal = 0
+grow_vertical = 0
+horizontal_alignment = 2
+text = "00:00.000"
+
 [node name="PauseLayer" type="ColorRect" parent="."]
 process_mode = 2
 visible = false
@@ -46,6 +61,18 @@ grow_vertical = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 
-[node name="ResumeButton" type="Button" parent="PauseLayer/PauseMenu"]
+[node name="MenuContainer" type="VBoxContainer" parent="PauseLayer/PauseMenu"]
+layout_mode = 2
+alignment = 1
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="GameOverLabel" type="Label" parent="PauseLayer/PauseMenu/MenuContainer"]
+layout_mode = 2
+visible = false
+horizontal_alignment = 1
+text = "Time survived: 00:00.000"
+
+[node name="ResumeButton" type="Button" parent="PauseLayer/PauseMenu/MenuContainer"]
 layout_mode = 2
 text = "Resume"

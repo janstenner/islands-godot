@@ -21,6 +21,8 @@ var play_height : int
 var world_left_column : int
 var world_right_column : int
 var generated_width : int
+var camera_half_view : Vector2 = Vector2.ZERO
+var game_over : bool = false
 
 @onready var tile_map = $TileMap
 @onready var boundary_map = $BoundaryTileMap
@@ -48,15 +50,22 @@ func _ready():
 	noise = noise_height_texture.noise
 	tile_size_px = tile_map.tile_set.tile_size.x
 	current_scroll_speed = base_scroll_speed
+	if player:
+		player.landed.connect(_on_player_landed)
 	_configure_camera()
 	generateWorld(0,0)
+	if Hud:
+		Hud.start_timer()
 	pass 
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(delta):
+	if game_over:
+		return
 	current_scroll_speed += scroll_acceleration * delta
 	_scroll_world(delta)
+	_check_player_bounds()
 	
 	
 func generateWorld(origin_x, origin_y):
@@ -104,6 +113,7 @@ func _configure_camera():
 	var tile_size = tile_map.tile_set.tile_size
 	var view_size = Vector2(visible_tiles.x * tile_size.x, visible_tiles.y * tile_size.y)
 	var half_view = view_size / 2.0
+	camera_half_view = half_view
 	camera.position = Vector2.ZERO
 	camera.limit_left = -half_view.x
 	camera.limit_right = half_view.x
@@ -194,3 +204,32 @@ func _configure_screen_bounds(half_view : Vector2):
 	if bottom_bound and bottom_bound.shape:
 		bottom_bound.position = Vector2(0, half_view.y + thickness * 0.5)
 		bottom_bound.shape.size = Vector2(horizontal_width, thickness)
+
+
+func _check_player_bounds():
+	if not player or game_over:
+		return
+	var player_pos = player.get_body_position()
+	if player_pos.x <= -camera_half_view.x:
+		trigger_game_over("Left boundary")
+
+
+func _on_player_landed(position : Vector2):
+	if game_over:
+		return
+	var cell = tile_map.local_to_map(tile_map.to_local(position))
+	if tile_map.get_cell_source_id(1, cell) != -1:
+		trigger_game_over("Landed on land")
+
+
+func trigger_game_over(_reason : String = ""):
+	if game_over:
+		return
+	game_over = true
+	current_scroll_speed = 0.0
+	var time_text = ""
+	if Hud:
+		time_text = Hud.get_formatted_time()
+		Hud.show_game_over(time_text)
+	else:
+		get_tree().paused = true

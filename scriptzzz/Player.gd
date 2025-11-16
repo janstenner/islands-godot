@@ -1,6 +1,8 @@
 extends Node2D
 class_name Player
 
+signal landed(position : Vector2)
+
 @export var SPEED : float = 30.0
 @export var jumping_power : float = 4.0
 @export var jump_gravity : float = -9.8
@@ -113,6 +115,7 @@ func update_jump(delta : float) -> bool:
 
 
 func finish_jump():
+	var was_jumping = is_jumping
 	is_jumping = false
 	jump_velocity = 0.0
 	jump_height = 0.0
@@ -125,6 +128,8 @@ func finish_jump():
 	if crosshair:
 		crosshair.visible = false
 	_reset_jump_visuals()
+	if was_jumping:
+		emit_signal("landed", get_body_position())
 
 
 func is_jump_active() -> bool:
