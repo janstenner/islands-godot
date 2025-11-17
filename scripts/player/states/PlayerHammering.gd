@@ -76,5 +76,9 @@ func _perform_hammer_hit():
 				temp_particle.position = world_root.to_local(world_space_position)
 				world_root.add_child(temp_particle)
 			
+	var removed_tiles = 0
 	for tile_pos in tiles_to_remove:
 		tile_map.erase_cell(layer_index, tile_pos)
+		removed_tiles += 1
+	if removed_tiles > 0 and player:
+		player.add_bonus_power_from_tiles(removed_tiles)

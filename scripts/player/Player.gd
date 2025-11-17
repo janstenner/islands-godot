@@ -10,11 +10,13 @@ signal landed(position : Vector2)
 @export var boundary_collision_mask : int = 2
 const MAX_JUMP_HEIGHT : float = 1.0
 const MIN_BONUS_JUMPING_POWER : float = 0.0
-const MAX_BONUS_JUMPING_POWER : float = 4.0
-const BONUS_CHARGE_RATE : float = 1.0
-const BONUS_DECAY_RATE : float = 1.8
+const MAX_BONUS_JUMPING_POWER : float = 7.0
+const BONUS_GAIN_PER_TILE : float = 0.15
+const BONUS_DECAY_RATE : float = 0.32
 const SHIP_FLICKER_FREQ : float = 8.0
 const CROSSHAIR_SCALE_FREQ : float = 5.0
+const MAX_LINEAR_SPEED : float = 300.0
+const JUMP_HOLD_TRANSFER : float = 0.06
 var jump_velocity : float = 0.0
 var jump_height : float = 0.0
 var pending_jump : bool = false
@@ -24,6 +26,7 @@ var crosshair_time : float = 0.0
 var crosshair_frame_counter : int = 0
 var bonus_jumping_power : float = 0.0
 var is_hammering : bool = false
+var jump_boost_window_active : bool = false
 
 @export_node_path("TileMap") var tile_map_path : NodePath
 @export_node_path("CanvasLayer") var hud_path : NodePath = NodePath("/root/Hud")
@@ -35,6 +38,7 @@ var is_hammering : bool = false
 @onready var ground_shadow : Node2D = $GroundShadow
 @onready var crosshair : Sprite2D = $GroundShadow/Crosshair
 @onready var drop_shadow_sprite : Sprite2D = $GroundShadow/DropShadowSprite
+@onready var hammer_sprite : Sprite2D = $Hammer
 @onready var tile_map : TileMap = _resolve_tile_map()
 @onready var hud : CanvasLayer = _resolve_hud()
 
@@ -72,8 +76,11 @@ func _ready():
 		crosshair_base_modulate = crosshair.modulate
 	if jump_collision_shape:
 		jump_collision_shape.disabled = true
+	if hammer_sprite:
+		hammer_sprite.visible = false
 	rng.randomize()
 	bonus_jumping_power = MIN_BONUS_JUMPING_POWER
+	_sync_bonus_charge()
 	_sync_root_to_body()
 
 func _physics_process(delta):
@@ -92,6 +99,7 @@ func _physics_process(delta):
 
 	if xy != Vector2.ZERO:
 		body.apply_central_impulse(xy)
+	_limit_body_velocity()
 	if is_jumping:
 		jump_time += delta
 		crosshair_time += delta
@@ -114,11 +122,12 @@ func start_jump():
 	if is_jumping:
 		return
 	is_jumping = true
-	jump_velocity = jumping_power + bonus_jumping_power
+	jump_velocity = jumping_power
 	jump_height = 0.0
 	jump_time = 0.0
 	crosshair_time = 0.0
 	crosshair_frame_counter = 0
+	jump_boost_window_active = true
 	if collision_shape:
 		collision_shape.disabled = true
 	if jump_collision_shape:
@@ -134,6 +143,7 @@ func start_jump():
 func update_jump(delta : float) -> bool:
 	if not is_jumping:
 		return false
+	_apply_jump_boost()
 	jump_velocity += jump_gravity * delta
 	jump_height += jump_velocity * delta * 0.5
 	jump_height = clamp(jump_height, 0.0, MAX_JUMP_HEIGHT)
@@ -147,6 +157,7 @@ func update_jump(delta : float) -> bool:
 func finish_jump():
 	var was_jumping = is_jumping
 	is_jumping = false
+	jump_boost_window_active = false
 	jump_velocity = 0.0
 	jump_height = 0.0
 	if collision_shape:
@@ -223,17 +234,21 @@ func get_hud() -> CanvasLayer:
 	return hud
 
 
+func add_bonus_power_from_tiles(tile_count : int):
+	if tile_count <= 0:
+		return
+	var gain = tile_count * BONUS_GAIN_PER_TILE
+	_set_bonus_power(bonus_jumping_power + gain)
+
+
 func set_hammering_state(active : bool):
 	is_hammering = active
+	if hammer_sprite:
+		hammer_sprite.visible = active
 
 
 func _update_bonus_power(delta : float):
-	if is_hammering:
-		bonus_jumping_power = clamp(bonus_jumping_power + BONUS_CHARGE_RATE * delta, MIN_BONUS_JUMPING_POWER, MAX_BONUS_JUMPING_POWER)
-	else:
-		bonus_jumping_power = clamp(bonus_jumping_power - BONUS_DECAY_RATE * delta, MIN_BONUS_JUMPING_POWER, MAX_BONUS_JUMPING_POWER)
-	if hud:
-		hud.update_bonus_charge(bonus_jumping_power, MIN_BONUS_JUMPING_POWER, MAX_BONUS_JUMPING_POWER)
+	_set_bonus_power(bonus_jumping_power - BONUS_DECAY_RATE * delta)
 
 
 func _update_ground_shadow(clamped_height : float):
@@ -272,6 +287,45 @@ func _update_ground_shadow(clamped_height : float):
 			crosshair.modulate = crosshair_base_modulate
 			crosshair.rotation = 0.0
 			crosshair_frame_counter = 0
+
+
+func _limit_body_velocity():
+	if not body:
+		return
+	var velocity = body.linear_velocity
+	var speed = velocity.length()
+	if speed > MAX_LINEAR_SPEED:
+		body.linear_velocity = velocity.normalized() * MAX_LINEAR_SPEED
+
+
+func _apply_jump_boost():
+	if not jump_boost_window_active:
+		return
+	if not Input.is_action_pressed("Jump"):
+		jump_boost_window_active = false
+		return
+	var consumed = consume_bonus_power(JUMP_HOLD_TRANSFER)
+	if consumed <= 0.0:
+		return
+	jump_velocity += consumed
+
+
+func consume_bonus_power(amount : float) -> float:
+	var consumption = clamp(amount, 0.0, bonus_jumping_power - MIN_BONUS_JUMPING_POWER)
+	if consumption <= 0.0:
+		return 0.0
+	_set_bonus_power(bonus_jumping_power - consumption)
+	return consumption
+
+
+func _set_bonus_power(value : float):
+	bonus_jumping_power = clamp(value, MIN_BONUS_JUMPING_POWER, MAX_BONUS_JUMPING_POWER)
+	_sync_bonus_charge()
+
+
+func _sync_bonus_charge():
+	if hud:
+		hud.update_bonus_charge(bonus_jumping_power, MIN_BONUS_JUMPING_POWER, MAX_BONUS_JUMPING_POWER)
 
 
 func _resolve_tile_map() -> TileMap:
