@@ -1,9 +1,9 @@
 [gd_scene load_steps=16 format=3 uid="uid://s8hyjvka1s0q"]
 
-[ext_resource type="PackedScene" uid="uid://dcydo58fpfn4j" path="res://scenes/player.tscn" id="1_2gnwj"]
-[ext_resource type="Script" uid="uid://cfb3ejoox8v6u" path="res://scriptzzz/world.gd" id="1_7tpkv"]
+[ext_resource type="PackedScene" uid="uid://dcydo58fpfn4j" path="res://scenes/player/player.tscn" id="1_2gnwj"]
+[ext_resource type="Script" uid="uid://cfb3ejoox8v6u" path="res://scripts/world/survival_world.gd" id="1_7tpkv"]
 [ext_resource type="TileSet" uid="uid://chwvfwqmtc0l4" path="res://sonstiges/tileset.tres" id="2_fh1fw"]
-[ext_resource type="Shader" uid="uid://d0eric3fjtm7m" path="res://scriptzzz/shader.gdshader" id="2_pb36s"]
+[ext_resource type="Shader" uid="uid://d0eric3fjtm7m" path="res://graphix/shaders/water.gdshader" id="2_pb36s"]
 [ext_resource type="Texture2D" uid="uid://camugdxa0royv" path="res://icon.svg" id="3_6cjew"]
 
 [sub_resource type="Gradient" id="Gradient_lrmp4"]
@@ -91,5 +91,7 @@ position = Vector2(0, 288)
 shape = SubResource("RectShape_bottom")
 
 [node name="Player" parent="." instance=ExtResource("1_2gnwj")]
+tile_map_path = NodePath("../TileMap")
+hud_path = NodePath("/root/Hud")
 
 [node name="GameCamera" type="Camera2D" parent="."]

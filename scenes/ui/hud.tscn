@@ -1,6 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://bloryq3tfbfru"]
+[gd_scene load_steps=3 format=3 uid="uid://cw0s5g3bkwv2l"]
 
-[ext_resource type="Script" path="res://scripts/ui/HUD.gd" id="1_b35k5"]
+[ext_resource type="Script" uid="uid://dgjng3vbkbqg7" path="res://scripts/ui/Hud.gd" id="1_b35k5"]
 [ext_resource type="Texture2D" uid="uid://d3swhue337hdh" path="res://graphix/sprites/heart.png" id="2_fls4u"]
 
 [node name="HUD" type="CanvasLayer"]

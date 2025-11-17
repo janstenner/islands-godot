@@ -107,7 +107,10 @@ func restart_game():
 	get_tree().paused = false
 	timer_running = false
 	is_game_over = false
-	get_tree().change_scene_to_file("res://scenes/world.tscn")
+	var main_scene_path : String = ProjectSettings.get_setting("application/run/main_scene", "")
+	if main_scene_path.is_empty():
+		main_scene_path = "res://scenes/levels/survival/survival_world.tscn"
+	get_tree().change_scene_to_file(main_scene_path)
 
 
 func _unhandled_input(_event):

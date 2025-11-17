@@ -1,4 +1,5 @@
 extends Node2D
+class_name SurvivalWorld
 
 @export var noise_height_texture : NoiseTexture2D
 @export var grassThreshold : float = 0.3
@@ -26,7 +27,7 @@ var generated_width : int
 var camera_half_view : Vector2 = Vector2.ZERO
 var game_over : bool = false
 var current_hearts : int = 0
-var heart_blast_particles = preload("res://scenes/explosion_land.tscn")
+var heart_blast_particles = preload("res://scenes/effects/explosion_land.tscn")
 
 @onready var tile_map = $TileMap
 @onready var boundary_map = $BoundaryTileMap

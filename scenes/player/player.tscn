@@ -1,13 +1,13 @@
 [gd_scene load_steps=13 format=3 uid="uid://dcydo58fpfn4j"]
 
-[ext_resource type="Script" uid="uid://5ww4pgyi4ju1" path="res://scriptzzz/Player.gd" id="1_mbmkg"]
+[ext_resource type="Script" uid="uid://5ww4pgyi4ju1" path="res://scripts/player/Player.gd" id="1_mbmkg"]
 [ext_resource type="Texture2D" uid="uid://bdw70eofhe6b" path="res://graphix/sprites/player.png" id="2_df5oy"]
 [ext_resource type="Texture2D" uid="uid://daiqvnptcxx44" path="res://graphix/sprites/hammer.png" id="3_re23o"]
-[ext_resource type="Script" uid="uid://djrmifqspmrj8" path="res://scriptzzz/FiniteStateMachine.gd" id="4_ikce3"]
-[ext_resource type="Script" uid="uid://vsu2ok3j4giu" path="res://scriptzzz/states/player/PlayerIdle.gd" id="5_53ryq"]
-[ext_resource type="Script" uid="uid://dlqbgqt83kr0h" path="res://scriptzzz/states/player/PlayerHammering.gd" id="6_udb4h"]
+[ext_resource type="Script" uid="uid://djrmifqspmrj8" path="res://scripts/core/state_machine/finite_state_machine.gd" id="4_ikce3"]
+[ext_resource type="Script" uid="uid://vsu2ok3j4giu" path="res://scripts/player/states/PlayerIdle.gd" id="5_53ryq"]
+[ext_resource type="Script" uid="uid://dlqbgqt83kr0h" path="res://scripts/player/states/PlayerHammering.gd" id="6_udb4h"]
 [ext_resource type="Texture2D" uid="uid://kt1lpno2cifj" path="res://graphix/sprites/crosshair.png" id="7_6b0bl"]
-[ext_resource type="Script" uid="uid://dfidv7klqllg6" path="res://scriptzzz/states/player/PlayerJumping.gd" id="8_x2w02"]
+[ext_resource type="Script" uid="uid://dfidv7klqllg6" path="res://scripts/player/states/PlayerJumping.gd" id="8_x2w02"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_wkvrw"]
 radius = 14.1421

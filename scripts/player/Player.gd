@@ -25,6 +25,9 @@ var crosshair_frame_counter : int = 0
 var bonus_jumping_power : float = 0.0
 var is_hammering : bool = false
 
+@export_node_path("TileMap") var tile_map_path : NodePath
+@export_node_path("CanvasLayer") var hud_path : NodePath = NodePath("/root/Hud")
+
 @onready var body : RigidBody2D = $PlayerBody
 @onready var sprite : Sprite2D = $PlayerBody/PlayerSprite
 @onready var collision_shape : CollisionShape2D = $PlayerBody/CollisionShape2D
@@ -32,8 +35,8 @@ var is_hammering : bool = false
 @onready var ground_shadow : Node2D = $GroundShadow
 @onready var crosshair : Sprite2D = $GroundShadow/Crosshair
 @onready var drop_shadow_sprite : Sprite2D = $GroundShadow/DropShadowSprite
-@onready var tile_map : TileMap = get_node("/root/World/TileMap")
-@onready var hud : CanvasLayer = get_node("/root/Hud")
+@onready var tile_map : TileMap = _resolve_tile_map()
+@onready var hud : CanvasLayer = _resolve_hud()
 
 var sprite_base_position : Vector2 = Vector2.ZERO
 var sprite_base_scale : Vector2 = Vector2.ONE
@@ -212,6 +215,14 @@ func get_body_position() -> Vector2:
 	return global_position
 
 
+func get_tile_map() -> TileMap:
+	return tile_map
+
+
+func get_hud() -> CanvasLayer:
+	return hud
+
+
 func set_hammering_state(active : bool):
 	is_hammering = active
 
@@ -261,3 +272,27 @@ func _update_ground_shadow(clamped_height : float):
 			crosshair.modulate = crosshair_base_modulate
 			crosshair.rotation = 0.0
 			crosshair_frame_counter = 0
+
+
+func _resolve_tile_map() -> TileMap:
+	var node = _resolve_node(tile_map_path)
+	if node and node is TileMap:
+		return node
+	if get_parent():
+		var parent_tile_map = get_parent().get_node_or_null("TileMap")
+		if parent_tile_map and parent_tile_map is TileMap:
+			return parent_tile_map
+	return null
+
+
+func _resolve_hud() -> CanvasLayer:
+	var node = _resolve_node(hud_path)
+	if node and node is CanvasLayer:
+		return node
+	return get_tree().root.get_node_or_null("/root/Hud") as CanvasLayer
+
+
+func _resolve_node(path : NodePath) -> Node:
+	if path.is_empty():
+		return null
+	return get_node_or_null(path)
