@@ -20,9 +20,9 @@ func Enter():
 	if player:
 		player.set_hammering_state(false)
 	if player and player.consume_jump_request():
-		state_transition.emit(self, "PlayerJumping")
+		request_state_transition("PlayerJumping")
 	else:
-		state_transition.emit(self, "PlayerIdle")
+		request_state_transition("PlayerIdle")
 
 
 func Exit():

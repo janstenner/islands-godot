@@ -221,12 +221,12 @@ func _check_player_bounds():
 		trigger_game_over("Left boundary")
 
 
-func _on_player_landed(position : Vector2):
+func _on_player_landed(landing_position : Vector2):
 	if game_over:
 		return
-	var cell = tile_map.local_to_map(tile_map.to_local(position))
+	var cell = tile_map.local_to_map(tile_map.to_local(landing_position))
 	if tile_map.get_cell_source_id(1, cell) != -1:
-		_lose_heart(position)
+		_lose_heart(landing_position)
 
 
 func trigger_game_over(_reason : String = ""):
@@ -241,15 +241,14 @@ func trigger_game_over(_reason : String = ""):
 	else:
 		get_tree().paused = true
 
-
-func _lose_heart(position : Vector2):
+func _lose_heart(hit_position : Vector2):
 	if current_hearts <= 0:
 		trigger_game_over("No hearts")
 		return
 	current_hearts -= 1
 	if Hud:
 		Hud.set_remaining_hearts(current_hearts)
-	_spawn_circular_break_effect(position, HEART_LOSS_RADIUS)
+	_spawn_circular_break_effect(hit_position, HEART_LOSS_RADIUS)
 	if current_hearts <= 0:
 		trigger_game_over("No hearts")
 
@@ -262,8 +261,8 @@ func _spawn_circular_break_effect(center_position : Vector2, radius : float):
 	for x in range(center_cell.x - radius_tiles, center_cell.x + radius_tiles + 1):
 		for y in range(center_cell.y - radius_tiles, center_cell.y + radius_tiles + 1):
 			var cell = Vector2i(x, y)
-			var source_id = tile_map.get_cell_source_id(layer_index, cell)
-			if source_id == -1:
+			var tile_source_id = tile_map.get_cell_source_id(layer_index, cell)
+			if tile_source_id == -1:
 				continue
 			var tile_position = tile_map.map_to_local(cell)
 			if tile_position.distance_to(center_position) <= radius:

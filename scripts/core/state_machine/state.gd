@@ -13,3 +13,7 @@ func Exit():
 	
 func Update(_delta:float):
 	pass
+
+
+func request_state_transition(new_state_name : String):
+	state_transition.emit(self, new_state_name)

@@ -13,7 +13,7 @@ func Update(delta : float):
 	if not player:
 		return
 	if not player.update_jump(delta):
-		state_transition.emit(self, "PlayerIdle")
+		request_state_transition("PlayerIdle")
 
 
 func Exit():

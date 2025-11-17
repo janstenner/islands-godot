@@ -11,9 +11,9 @@ func Update(_delta : float):
 		#state_transition.emit(self, "Moving")
 		
 	if Input.is_action_just_pressed("Jump"):
-		state_transition.emit(self, "PlayerJumping")
+		request_state_transition("PlayerJumping")
 	elif Input.is_action_pressed("Hammer"):
-		state_transition.emit(self, "PlayerHammering")
+		request_state_transition("PlayerHammering")
 
 func Exit():
 	pass
