@@ -180,7 +180,7 @@ func _apply_jump_visuals():
 	var scale_factor = 1.0 + clamped_height * 1.3
 	if sprite:
 		sprite.scale = sprite_base_scale * scale_factor
-		var base_opacity = lerp(1.0, 0.5, clamped_height / MAX_JUMP_HEIGHT)
+		var base_opacity = lerp(1.0, 0.3, clamped_height / MAX_JUMP_HEIGHT)
 		var flicker = 0.85 + 0.15 * sin(jump_time * SHIP_FLICKER_FREQ * TAU)
 		var opacity = clamp(base_opacity * flicker, 0.3, 1.0)
 		var color = sprite_base_modulate
