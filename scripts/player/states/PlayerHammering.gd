@@ -33,18 +33,18 @@ func _hammer_loop():
 	while _is_hammering:
 		animation_player.play("hammer_animation")
 		while animation_player.is_playing():
-			if Input.is_action_just_pressed("Jump") and player:
+			if InputService.is_jump_just_pressed() and player:
 				player.queue_jump()
 				animation_player.stop()
 				_is_hammering = false
 				return
 			await get_tree().process_frame
-		if Input.is_action_just_pressed("Jump") and player:
+		if InputService.is_jump_just_pressed() and player:
 			player.queue_jump()
 			_is_hammering = false
 			return
 		_perform_hammer_hit()
-		if not Input.is_action_pressed("Hammer"):
+		if not InputService.is_hammer_pressed():
 			_is_hammering = false
 
 

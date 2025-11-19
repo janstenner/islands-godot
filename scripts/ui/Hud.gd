@@ -39,9 +39,9 @@ func _process(delta):
 	if timer_running and not get_tree().paused:
 		elapsed_time += delta
 		_update_timer_label()
-	if Input.is_action_just_pressed("Reset"):
+	if InputService.is_reset_just_pressed():
 		restart_game()
-	elif is_game_over and Input.is_action_just_pressed("Hammer"):
+	elif is_game_over and InputService.is_hammer_just_pressed():
 		restart_game()
 
 

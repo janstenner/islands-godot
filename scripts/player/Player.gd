@@ -86,19 +86,9 @@ func _ready():
 func _physics_process(delta):
 	if not body:
 		return
-	var directionx = Input.get_axis("ui_left", "ui_right")
-	var directiony = Input.get_axis("ui_up", "ui_down")
-	
-	var xy : Vector2 = Vector2.ZERO
-	
-	if directionx:
-		xy.x = directionx * SPEED
-		
-	if directiony:
-		xy.y = directiony * SPEED
-
-	if xy != Vector2.ZERO:
-		body.apply_central_impulse(xy)
+	var movement_input = InputService.get_movement_input()
+	if movement_input != Vector2.ZERO:
+		body.apply_central_impulse(movement_input * SPEED)
 	_limit_body_velocity()
 	if is_jumping:
 		jump_time += delta
@@ -301,7 +291,7 @@ func _limit_body_velocity():
 func _apply_jump_boost():
 	if not jump_boost_window_active:
 		return
-	if not Input.is_action_pressed("Jump"):
+	if not InputService.is_jump_pressed():
 		jump_boost_window_active = false
 		return
 	var consumed = consume_bonus_power(JUMP_HOLD_TRANSFER)

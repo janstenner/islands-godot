@@ -18,6 +18,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 Hud="*res://scenes/ui/hud.tscn"
+InputService="*res://scripts/core/input/input_service.gd"
 
 [debug]
 
