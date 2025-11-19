@@ -3,6 +3,7 @@ extends CanvasLayer
 @onready var pause_button = $PauseButton
 @onready var resume_button = $PauseLayer/PauseMenu/MenuContainer/ResumeButton
 @onready var restart_button = $PauseLayer/PauseMenu/MenuContainer/RestartButton
+@onready var main_menu_button = $PauseLayer/PauseMenu/MenuContainer/MainMenuButton
 @onready var pause_layer = $PauseLayer
 @onready var timer_label = $TimerLabel
 @onready var game_over_label = $PauseLayer/PauseMenu/MenuContainer/GameOverLabel
@@ -13,20 +14,28 @@ var heart_sprites : Array = []
 var elapsed_time : float = 0.0
 var timer_running : bool = false
 var is_game_over : bool = false
+var current_level_path : String = ""
+
+const DEFAULT_LEVEL_PATH : String = "res://scenes/levels/survival/survival_world.tscn"
+const MAIN_MENU_SCENE : String = "res://scenes/menus/main_menu.tscn"
 
 func _ready():
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	pause_button.pressed.connect(pause)
 	resume_button.pressed.connect(resume)
 	restart_button.pressed.connect(restart_game)
+	main_menu_button.pressed.connect(return_to_main_menu)
 	_reset_overlay()
 	set_process_unhandled_input(true)
 	heart_sprites = hearts_container.get_children()
 	reset_hearts()
 	update_bonus_charge(0.0, 0.0, 1.0)
+	hide_hud()
 
 
 func _process(delta):
+	if not visible:
+		return
 	if timer_running and not get_tree().paused:
 		elapsed_time += delta
 		_update_timer_label()
@@ -107,10 +116,18 @@ func restart_game():
 	get_tree().paused = false
 	timer_running = false
 	is_game_over = false
-	var main_scene_path : String = ProjectSettings.get_setting("application/run/main_scene", "")
-	if main_scene_path.is_empty():
-		main_scene_path = "res://scenes/levels/survival/survival_world.tscn"
-	get_tree().change_scene_to_file(main_scene_path)
+	var level_path = current_level_path
+	if level_path.is_empty():
+		level_path = DEFAULT_LEVEL_PATH
+	get_tree().change_scene_to_file(level_path)
+
+
+func return_to_main_menu():
+	get_tree().paused = false
+	timer_running = false
+	is_game_over = false
+	hide_hud()
+	get_tree().change_scene_to_file(MAIN_MENU_SCENE)
 
 
 func _unhandled_input(_event):
@@ -141,3 +158,19 @@ func update_bonus_charge(current_value : float, min_value : float, max_value : f
 	var ratio = clamp((current_value - min_value) / (max_value - min_value), 0.0, 1.0)
 	bonus_bar.value = ratio
 	bonus_bar.visible = ratio > 0.0
+
+
+func set_current_level_path(path : String):
+	current_level_path = path
+
+
+func show_hud():
+	visible = true
+
+
+func hide_hud():
+	visible = false
+	pause_layer.hide()
+	timer_running = false
+	is_game_over = false
+	get_tree().paused = false

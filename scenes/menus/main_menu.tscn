@@ -1,0 +1,57 @@
+[gd_scene load_steps=2 format=3 uid="uid://c10g414nsdw0k"]
+
+[ext_resource type="Script" path="res://scripts/ui/menus/main_menu.gd" id="1_u8t1r"]
+
+[node name="MainMenu" type="Control"]
+layout_mode = 3
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_u8t1r")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 220.0
+offset_top = 80.0
+offset_right = -220.0
+offset_bottom = -80.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 40
+theme_override_constants/margin_top = 40
+theme_override_constants/margin_right = 40
+theme_override_constants/margin_bottom = 40
+
+[node name="MenuContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 1
+theme_override_constants/separation = 18
+
+[node name="TitleLabel" type="Label" parent="MarginContainer/MenuContainer"]
+layout_mode = 2
+text = "Islands Survival"
+horizontal_alignment = 1
+theme_override_font_sizes/font_size = 36
+
+[node name="SubtitleLabel" type="Label" parent="MarginContainer/MenuContainer"]
+layout_mode = 2
+text = "Choose a level to begin"
+horizontal_alignment = 1
+
+[node name="LevelSelector" type="OptionButton" parent="MarginContainer/MenuContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="StartButton" type="Button" parent="MarginContainer/MenuContainer"]
+layout_mode = 2
+text = "Start"
+size_flags_horizontal = 4
+
+[node name="OptionsButton" type="Button" parent="MarginContainer/MenuContainer"]
+layout_mode = 2
+text = "Options"
+size_flags_horizontal = 4

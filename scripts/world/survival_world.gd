@@ -61,6 +61,13 @@ func _ready():
 	generateWorld(0,0)
 	current_hearts = max_hearts
 	if Hud:
+		Hud.show_hud()
+		var level_path = ""
+		if has_method("get_scene_file_path"):
+			level_path = get_scene_file_path()
+		if level_path.is_empty():
+			level_path = "res://scenes/levels/survival/survival_world.tscn"
+		Hud.set_current_level_path(level_path)
 		Hud.start_timer()
 		Hud.set_remaining_hearts(current_hearts)
 	pass 

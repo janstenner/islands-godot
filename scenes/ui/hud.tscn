@@ -126,3 +126,7 @@ text = "Resume"
 [node name="RestartButton" type="Button" parent="PauseLayer/PauseMenu/MenuContainer"]
 layout_mode = 2
 text = "Restart"
+
+[node name="MainMenuButton" type="Button" parent="PauseLayer/PauseMenu/MenuContainer"]
+layout_mode = 2
+text = "Main Menu"
