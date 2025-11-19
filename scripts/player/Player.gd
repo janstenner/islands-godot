@@ -27,9 +27,11 @@ var crosshair_frame_counter : int = 0
 var bonus_jumping_power : float = 0.0
 var is_hammering : bool = false
 var jump_boost_window_active : bool = false
+var last_splash_time : int = 0
 
 @export_node_path("TileMap") var tile_map_path : NodePath
 @export_node_path("CanvasLayer") var hud_path : NodePath = NodePath("/root/Hud")
+@export var water_splash_scene : PackedScene = preload("res://scenes/effects/water_splash.tscn")
 
 @onready var body : RigidBody2D = $PlayerBody
 @onready var sprite : Sprite2D = $PlayerBody/PlayerSprite
@@ -159,6 +161,7 @@ func finish_jump():
 	_reset_jump_visuals()
 	if was_jumping:
 		emit_signal("landed", get_body_position())
+		_spawn_water_splash_if_needed()
 
 
 func is_jump_active() -> bool:
@@ -277,6 +280,28 @@ func _update_ground_shadow(clamped_height : float):
 			crosshair.modulate = crosshair_base_modulate
 			crosshair.rotation = 0.0
 			crosshair_frame_counter = 0
+
+
+func _spawn_water_splash_if_needed():
+	if not water_splash_scene:
+		return
+	
+	var on_land = false
+	if tile_map and body:
+		var cell = tile_map.local_to_map(tile_map.to_local(body.global_position))
+		on_land = tile_map.get_cell_source_id(1, cell) != -1
+	
+	if not on_land:
+		var current_time = Time.get_ticks_msec()
+		if current_time - last_splash_time < 200:
+			return
+		last_splash_time = current_time
+		
+		var splash = water_splash_scene.instantiate()
+		splash.z_index = body.z_index - 1
+		get_parent().add_child(splash)
+		splash.global_position = (body.global_position if body else global_position) + Vector2(0, 10)
+		splash.emitting = true
 
 
 func _limit_body_velocity():

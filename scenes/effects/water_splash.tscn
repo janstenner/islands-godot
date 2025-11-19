@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://obvnmqbtll2m"]
+
+[ext_resource type="Texture2D" uid="uid://chck8wrnbwfts" path="res://graphix/sprites/water.png" id="1_water"]
+[ext_resource type="Script" path="res://scripts/effects/water_splash.gd" id="2_script"]
+
+[sub_resource type="Curve" id="Curve_splash"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), -2.0, 0.0, 0, 0]
+point_count = 2
+
+[node name="WaterSplash" type="CPUParticles2D"]
+script = ExtResource("2_script")
+emitting = false
+amount = 16
+lifetime = 0.6
+one_shot = true
+explosiveness = 1.0
+texture = ExtResource("1_water")
+direction = Vector2(0, -1)
+spread = 30.0
+gravity = Vector2(0, 300)
+initial_velocity_min = 100.0
+initial_velocity_max = 150.0
+scale_amount_min = 1.0
+scale_amount_max = 2.0
+scale_amount_curve = SubResource("Curve_splash")
+color = Color(0.6, 0.8, 1, 1)
